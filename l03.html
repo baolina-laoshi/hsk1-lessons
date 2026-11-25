@@ -165,8 +165,8 @@ textarea{width:100%;min-height:150px;font:16px/1.45 Nunito,sans-serif;border:2px
 
 <header class="hud">
  <h1><a class="home" href="index.html">Все уроки</a> Урок 3 · <span class="zh">我是中国人</span></h1>
- <button class="wallet" data-go="10" title="Твои бриллианты. Нажми, чтобы открыть ларёк"><svg viewBox="0 0 60 50"><use href="#dump"/></svg><span id="coins">0</span><small>+<span id="st">0</span> сегодня</small></button>
- <button class="me" data-go="10" id="meBtn" aria-label="Твой персонаж"></button>
+ <button class="wallet" data-go="11" title="Твои бриллианты. Нажми, чтобы открыть ларёк"><svg viewBox="0 0 60 50"><use href="#dump"/></svg><span id="coins">0</span><small>+<span id="st">0</span> сегодня</small></button>
+ <button class="me" data-go="11" id="meBtn" aria-label="Твой персонаж"></button>
 </header>
 <nav id="nav" aria-label="Этапы"></nav>
 
@@ -183,17 +183,22 @@ textarea{width:100%;min-height:150px;font:16px/1.45 Nunito,sans-serif;border:2px
 </section>
 
 <section class="stage" data-name="1. Новые слова">
- <div class="head"><div class="guide"><span data-ch="wang"></span><div class="bubble"><h2>Новые слова</h2><p>Идём по текстам учебника. Слушай, повторяй вслух, смотри, как пишется, и пиши в тетради. После слов читаем диалог.</p></div></div></div>
+ <div class="head"><div class="guide"><span data-ch="wang"></span><div class="bubble"><h2>Новые слова</h2><p>Идём по текстам учебника: сначала слова первого текста, потом второго и третьего. Слушай, повторяй вслух, смотри, как пишется, и пиши в тетради.</p></div></div></div>
  <div class="steps" id="steps"></div>
  <div class="card" id="learn"></div>
 </section>
 
-<section class="stage" data-name="2. Грамматика">
+<section class="stage" data-name="2. Тексты">
+ <div class="head"><div class="guide"><span data-ch="bai"></span><div class="bubble"><h2>Тексты</h2><p>Читаем все тексты урока по ролям. Сначала с пиньинем, потом без него, а перевод открываем, только если что-то непонятно.</p></div></div></div>
+ <div id="texts"></div>
+</section>
+
+<section class="stage" data-name="3. Грамматика">
  <div class="head"><div class="guide"><span data-ch="xiaoyu"></span><div class="bubble"><h2>Грамматика</h2><p>Правила из этого урока. Прочитай правило, послушай примеры и ответь на вопрос под ним.</p></div></div></div>
  <div class="gr" id="gr"></div>
 </section>
 
-<section class="stage" data-name="3. Тоны и скороговорки">
+<section class="stage" data-name="4. Тоны и скороговорки">
  <div class="head"><div class="guide"><span data-ch="bai"></span><div class="bubble"><h2>Тоны и скороговорки</h2><p>Сначала скороговорки из учебника: медленно, потом быстрее. Потом угадай тон на слух.</p></div></div></div>
  <div class="card"><div class="row" style="justify-content:space-between"><h3>Тоны по цветам</h3><div class="legend"><span class="t1">1 ā</span><span class="t2">2 á</span><span class="t3">3 ǎ</span><span class="t4">4 à</span><span class="t0">лёгкий a</span></div></div></div>
  <div class="tw" id="tw"></div>
@@ -204,13 +209,13 @@ textarea{width:100%;min-height:150px;font:16px/1.45 Nunito,sans-serif;border:2px
  </div>
 </section>
 
-<section class="stage" data-name="4. Тренировка">
+<section class="stage" data-name="5. Тренировка">
  <div class="head"><div class="guide"><span data-ch="liwen"></span><div class="bubble"><h2>Тренировка</h2><p>Три задания. Переключай вкладки.</p></div></div></div>
  <div class="row tabs" id="ptabs"></div>
  <div class="card" id="pBody"></div>
 </section>
 
-<section class="stage" data-name="5. Три жизни">
+<section class="stage" data-name="6. Три жизни">
  <div class="head"><div class="guide"><span data-ch="chen"></span><div class="bubble"><h2>Три жизни</h2><p>Видишь иероглиф — называешь чтение и перевод. Не вспомнишь — теряешь жизнь.</p></div></div><div class="lives" id="lives"></div></div>
  <div class="card center">
   <div class="zh big" id="koH"></div>
@@ -220,7 +225,7 @@ textarea{width:100%;min-height:150px;font:16px/1.45 Nunito,sans-serif;border:2px
  </div>
 </section>
 
-<section class="stage" data-name="6. Охота за бриллиантами">
+<section class="stage" data-name="7. Охота за бриллиантами">
  <div class="head"><div class="guide"><span data-ch="annie"></span><div class="bubble"><h2>Охота за бриллиантами</h2><p>Верный ответ — +1 бриллиант, ошибка — минус два. Набери 10 и продержись 15 секунд без ошибок.</p></div></div></div>
  <div class="card center">
   <div class="pile" id="pile"></div>
@@ -232,7 +237,7 @@ textarea{width:100%;min-height:150px;font:16px/1.45 Nunito,sans-serif;border:2px
  </div>
 </section>
 
-<section class="stage" data-name="7. Дуэль">
+<section class="stage" data-name="8. Дуэль">
  <div class="head"><div class="guide"><span data-ch="wang"></span><div class="bubble"><h2>Дуэль</h2><p>Ситуация по-русски — ответ по-китайски. Скажи, потом открой и проверь себя.</p></div></div></div>
  <div class="sd" id="sd"></div>
  <div class="card fin">
@@ -243,12 +248,12 @@ textarea{width:100%;min-height:150px;font:16px/1.45 Nunito,sans-serif;border:2px
  </div>
 </section>
 
-<section class="stage" data-name="8. Тест">
+<section class="stage" data-name="9. Тест">
  <div class="head"><div class="guide"><span data-ch="xiaoyu"></span><div class="bubble"><h2>Тест как на HSK</h2><p>10 вопросов: сначала аудирование, потом чтение. Подсказок нет, только ты и китайский.</p></div></div></div>
  <div class="card" id="test"></div>
 </section>
 
-<section class="stage" data-name="9. Итоги">
+<section class="stage" data-name="10. Итоги">
  <div class="head"><div class="guide"><span data-ch="bai"></span><div class="bubble"><h2>Итоги</h2><p><span class="zh">很好！</span> Вот что получилось сегодня.</p></div></div></div>
  <div class="res">
   <div class="card center"><h3>Бриллианты за урок</h3><div class="stars" id="rSt">0</div><p id="rBank" style="font-weight:800"></p></div>
@@ -262,7 +267,7 @@ textarea{width:100%;min-height:150px;font:16px/1.45 Nunito,sans-serif;border:2px
  </div>
  <p class="foot">Лексика и диалоги: «Новый HSK 1» (2026), урок 3. Персонажи и оформление нарисованы для этих уроков. Озвучка: TTSMaker.</p>
 </section>
-<section class="stage" data-name="10. Ларёк">
+<section class="stage" data-name="11. Ларёк">
  <div class="head"><div class="guide"><span data-ch="me"></span><div class="bubble"><h2>Ларёк <span class="zh">小卖部</span></h2><p>Здесь тратишь бриллианты. Покупки остаются навсегда, их можно надевать и снимать. Заодно выучишь, как они называются по-китайски.</p></div></div></div>
  <div class="shop">
   <div class="card mecard"><h3>Твой персонаж</h3><div id="meBig"></div><p class="label">Цвет</p><div class="row center" id="sw"></div><p style="margin:14px 0 0">У тебя <b id="coins2">0</b> <span class="zh">钻石</span></p></div>
@@ -354,19 +359,19 @@ const sayList=l=>{stopAll();let k=0;const nx=()=>{if(k<l.length)play1(l[k++],()=
 const stages=$$('.stage');
 $('#nav').innerHTML=stages.map((s,i)=>`<button data-go="${i}">${s.dataset.name}</button>`).join('');
 $('#path').innerHTML=stages.slice(1).map((s,i)=>`<button class="node" data-go="${i+1}"><span class="c">${i+1}</span><span class="n">${s.dataset.name.replace(/^\d+\. /,"")}</span></button>`).join('');
-function go(i){stages.forEach((s,k)=>s.classList.toggle('on',k===i));$$('#nav button').forEach((b,k)=>b.setAttribute('aria-current',k===i));window.scrollTo(0,0);if(i===1)renderLearn();if(i===9)paint();if(i===10)renderShop()}
+function go(i){stages.forEach((s,k)=>s.classList.toggle('on',k===i));$$('#nav button').forEach((b,k)=>b.setAttribute('aria-current',k===i));window.scrollTo(0,0);if(i===1)renderLearn();if(i===2)renderTexts();if(i===10)paint();if(i===11)renderShop()}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(+b.dataset.go)});
 
 /* 1 learn: by textbook texts */
 let ti=0,si=0,writers=[],outl=false,noPy=false,noRu=true;const seen=new Set();
-const items=T=>[...T.words.map(byH),...(T.proper||[]).map(x=>({...x,proper:1})),{dlg:1}];
+const items=T=>[...T.words.map(byH),...(T.proper||[]).map(x=>({...x,proper:1}))];
 $('#steps').innerHTML=TEXTS.map((T,k)=>`<button data-ti="${k}"><b>Урок ${T.l} · текст ${T.t}</b>${T.what}</button>`).join('');
 $('#steps').addEventListener('click',e=>{const b=e.target.closest('[data-ti]');if(b){ti=+b.dataset.ti;si=0;renderLearn(true)}});
-function renderLearn(sp){const T=TEXTS[ti],its=items(T),it=its[si];
+function renderLearn(sp){const T=TEXTS[ti],its=items(T),it=its[si];if(si===its.length-1)seen.add(ti);
  $$('#steps button').forEach((b,k)=>{b.setAttribute('aria-pressed',k===ti);b.classList.toggle('done',seen.has(k)&&k!==ti)});
  const L=$('#learn');const last=ti===TEXTS.length-1&&si===its.length-1;
- const prog=`<div class="lprog"><span class="label">Урок ${T.l}, текст ${T.t} · ${it.dlg?'диалог':'слово '+(si+1)+' из '+(its.length-1)}</span><div class="bar"><i style="width:${(si+1)/its.length*100}%"></i></div></div>`;
- const nav=`<div class="row lnav"><button id="lPrev" ${ti===0&&si===0?'disabled':''}>Назад</button><button class="y" id="lNext" ${last?'':''}>${last?'К грамматике':it.dlg?'Следующий текст':si===its.length-2?'К диалогу':'Следующее слово'}</button></div>`;
+ const prog=`<div class="lprog"><span class="label">Урок ${T.l}, текст ${T.t} · ${'слово '+(si+1)+' из '+its.length}</span><div class="bar"><i style="width:${(si+1)/its.length*100}%"></i></div></div>`;
+ const nav=`<div class="row lnav"><button id="lPrev" ${ti===0&&si===0?'disabled':''}>Назад</button><button class="y" id="lNext" ${last?'':''}>${last?'К текстам':si===its.length-1?'Следующий текст':'Следующее слово'}</button></div>`;
  if(it.dlg){seen.add(ti);
   L.innerHTML=prog+`<h3 style="font-size:22px">${T.what}</h3><p class="label" style="margin:4px 0 0">Читаем по ролям. Сначала с пиньинем, потом без него.</p>
   <div class="row" style="margin-top:12px"><button class="y" id="dAll"><svg class="ic"><use href="#spk"/></svg>Слушать весь диалог</button><button id="dPy" aria-pressed="${!noPy}">Пиньинь</button><button id="dRu" aria-pressed="${!noRu}">Перевод</button></div>
@@ -386,6 +391,14 @@ function renderLearn(sp){const T=TEXTS[ti],its=items(T),it=its[si];
   if(sp)say(it.h)}
  $('#lPrev').onclick=()=>{if(si>0)si--;else if(ti>0){ti--;si=items(TEXTS[ti]).length-1}renderLearn(true)};
  $('#lNext').onclick=()=>{if(si<its.length-1)si++;else if(ti<TEXTS.length-1){ti++;si=0}else{go(2);return}renderLearn(true)}}
+
+
+/* texts */
+let tPy=true,tRu=false;
+function renderTexts(){const B=$('#texts');
+ B.innerHTML=`<div class="row tabs" style="margin-bottom:14px"><button id="tPy" aria-pressed="${tPy}">Пиньинь</button><button id="tRu" aria-pressed="${tRu}">Перевод</button></div>`+TEXTS.map((T,k)=>`<div class="card" style="margin-bottom:14px"><div class="label">Урок ${T.l} · текст ${T.t}</div><div class="row" style="justify-content:space-between;margin:4px 0 6px"><h3 style="font-size:22px">${T.what}</h3><button class="y" data-all="${k}"><svg class="ic"><use href="#spk"/></svg>Слушать весь текст</button></div><div class="dlg${tPy?'':' noPy'}${tRu?'':' noRu'}">${T.dlg.map(([who,zh,py,ru],j)=>`<div class="line">${chSVG(PPL[who])}<div><div class="nm zh">${who}</div><div class="zh">${zh}</div><div class="p2">${py}</div><div class="r2">${ru}</div></div><button data-tl2="${k}_${j}" aria-label="Озвучить"><svg class="ic" style="margin:0"><use href="#spk"/></svg></button></div>`).join('')}</div></div>`).join('');
+ $('#tPy').onclick=()=>{tPy=!tPy;renderTexts()};$('#tRu').onclick=()=>{tRu=!tRu;renderTexts()}}
+$('#texts').addEventListener('click',e=>{const a=e.target.closest('[data-all]');if(a){sayList(TEXTS[+a.dataset.all].dlg.map(d=>d[1]));return}const b=e.target.closest('[data-tl2]');if(b){const [k,j]=b.dataset.tl2.split('_').map(Number);say(TEXTS[k].dlg[j][1])}});
 
 /* 2 practice */
 const SENT=L.sent;
