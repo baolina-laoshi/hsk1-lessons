@@ -216,11 +216,11 @@ textarea{width:100%;min-height:150px;font:16px/1.45 Nunito,sans-serif;border:2px
 </section>
 
 <section class="stage" data-name="6. Три жизни">
- <div class="head"><div class="guide"><span data-ch="chen"></span><div class="bubble"><h2>Три жизни</h2><p>Видишь иероглиф — называешь чтение и перевод. Не вспомнишь — теряешь жизнь.</p></div></div><div class="lives" id="lives"></div></div>
+ <div class="head"><div class="guide"><span data-ch="chen"></span><div class="bubble"><h2>Три жизни</h2><p>Видишь слово — выбираешь перевод. Ошибёшься или не вспомнишь — теряешь жизнь.</p></div></div><div class="lives" id="lives"></div></div>
  <div class="card center">
   <div class="zh big" id="koH"></div>
   <div class="reveal hide" id="koR"><div class="py" id="koP"></div><div class="ru" id="koT"></div></div>
-  <div class="row center" id="koBtns"><button id="koShow">Ответ</button><button class="t" id="koYes">Помню</button><button class="d" id="koNo">Не помню</button></div>
+  <div id="koBtns"><div class="row center" id="koOpt" style="flex-wrap:wrap"></div><div class="row center" style="margin-top:10px"><button class="d" id="koNo">Не помню</button></div></div>
   <div id="koMsg" class="un" style="font-size:24px;margin-top:12px"></div>
  </div>
 </section>
@@ -410,13 +410,16 @@ const REACT=L.react;
 let mode='s',sI=0,ans=[],tiles=[],rI=0,pr=null;
 $('#ptabs').innerHTML=[['s','Собери фразу'],['r','Что ответишь?'],['m','Пары на время']].map(([k,t])=>`<button data-m="${k}" aria-pressed="${k==='s'}">${t}</button>`).join('');
 $('#ptabs').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;mode=b.dataset.m;$$('#ptabs button').forEach(x=>x.setAttribute('aria-pressed',x===b));drawP()});
+const sFail=new Set(),nFail=new Set();
 function newPairs(){const s=shuf(W).slice(0,6);pr={L:shuf(s),R:shuf(s),done:new Set(),sel:null,err:0,start:0,end:0}}
 function drawP(){const B=$('#pBody');
  if(mode==='s'){const [ws,pu,ru]=SENT[sI];if(!tiles.length)tiles=shuf(ws.map(w=>({w})));
   B.innerHTML=`<div class="label">Фраза ${sI+1} из ${SENT.length}. Скажи, в каком порядке поставить слова.</div><h3 style="font-size:24px;margin-top:6px">${ru}</h3><div class="ans">${ans.map((t,k)=>`<button class="tile zh" data-back="${k}">${t.w}</button>`).join('')}<span class="zh" style="font-size:32px">${ans.length===ws.length?pu:''}</span></div><div class="row">${tiles.map((t,k)=>`<button class="tile zh${ans.includes(t)?' used':''}" data-tl="${k}">${t.w}</button>`).join('')}</div><div class="row" style="margin-top:16px"><button class="y" id="sChk">Проверить</button><button id="sNext">Следующая</button><span id="sRes"></span></div>`;
   B.querySelectorAll('[data-tl]').forEach(b=>b.onclick=()=>{ans.push(tiles[+b.dataset.tl]);drawP()});
   B.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{ans.splice(+b.dataset.back,1);drawP()});
-  $('#sChk').onclick=()=>{const ok=ans.map(t=>t.w).join('')===ws.join('');$('#sRes').innerHTML=ok?plus(award('s'+sI,2),2,'бриллианта'):'<span class="bad">Почти. Правильно так: <span class="zh">'+ws.join('')+pu+'</span></span>';if(ok)say(ws.join(''))};
+  $('#sChk').onclick=()=>{if(ans.length<ws.length)return;const got=ans.map(t=>t.w).join('');const alt=SENT[sI][3]||[];const ok=got===ws.join('')||alt.includes(got);const other=[ws.join(''),...alt].filter(x=>x!==got);
+   if(ok){$('#sRes').innerHTML=sFail.has(sI)?'<span class="ok">Теперь верно. Бриллианты за эту фразу сгорели после ошибки.</span>':plus(award('s'+sI,2),2,'бриллианта');if(other.length)$('#sRes').innerHTML+='<div class="label" style="margin-top:6px">Можно и так: <span class="zh">'+other.join(pu+' / ')+pu+'</span></div>';say(got)}
+   else{sFail.add(sI);$('#sRes').innerHTML='<span class="bad">Почти. Правильно так: <span class="zh">'+[ws.join(''),...alt].join(pu+' / ')+pu+'</span></span>'}};
   $('#sNext').onclick=()=>{sI=(sI+1)%SENT.length;ans=[];tiles=[];drawP()}}
  if(mode==='r'){const [q,o,c]=REACT[rI];let done=false;
   B.innerHTML=`<div class="label">Ситуация ${rI+1} из ${REACT.length}. Сначала ответь вслух, потом выбери вариант.</div><div class="center" style="margin-top:8px"><span class="zh" style="font-size:clamp(36px,6.5vw,64px)">${q}</span> <button id="rSay" aria-label="Озвучить" style="vertical-align:middle"><svg class="ic" style="margin:0"><use href="#spk"/></svg></button></div><div class="opts">${o.map((t,k)=>`<button class="zh" data-o="${k}">${t}</button>`).join('')}</div><div class="row" style="margin-top:14px"><button id="rNext">Дальше</button><span id="rRes"></span></div>`;
@@ -427,7 +430,7 @@ function drawP(){const B=$('#pBody');
   B.innerHTML=`<div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="label">Соедини иероглиф и перевод как можно быстрее. Ошибок: ${pr.err}</span><span class="un" style="font-size:22px">${pr.end?'Время: '+((pr.end-pr.start)/1000).toFixed(1)+' с':''}</span><button class="y" id="mNew">Новые пары</button></div><div class="pairs"><div class="col">${pr.L.map(w=>`<button class="zh${pr.done.has(w.i)?' done':''}${pr.sel===w.i?' sel':''}" data-pl="${w.i}">${w.h}</button>`).join('')}</div><div class="col">${pr.R.map(w=>`<button class="${pr.done.has(w.i)?'done':''}" data-pr="${w.i}">${w.r}</button>`).join('')}</div></div>`;
   $('#mNew').onclick=()=>{newPairs();drawP()};
   B.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{if(!pr.start)pr.start=Date.now();pr.sel=+b.dataset.pl;drawP()});
-  B.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{if(pr.sel==null)return;const r=+b.dataset.pr;if(r===pr.sel){pr.done.add(r);say(W[r].h);pr.sel=null;if(pr.done.size===6){pr.end=Date.now();{const i=[0,1,2].find(i=>!doneT.has('m'+i));if(i!=null)award('m'+i,3)}}drawP()}else{pr.err++;b.classList.add('no');setTimeout(drawP,500)}})}}
+  B.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{if(pr.sel==null)return;const r=+b.dataset.pr;if(r===pr.sel){pr.done.add(r);say(W[r].h);pr.sel=null;if(pr.done.size===6){pr.end=Date.now();if(pr.err<=2){const i=[0,1,2].find(i=>!doneT.has('m'+i));if(i!=null)award('m'+i,3)}}drawP()}else{pr.err++;b.classList.add('no');setTimeout(drawP,500)}})}}
 drawP();
 
 /* 3 three lives */
@@ -436,10 +439,16 @@ function koStart(){ko=shuf(W);koI=0;lives=3;koOk=0;$('#koMsg').textContent='';$(
 function koShow(){$('#lives').innerHTML=[0,1,2].map(k=>`<svg style="opacity:${k<lives?1:.2}"><use href="#heart"/></svg>`).join('');
  if(lives<=0||koI>=ko.length){$('#koH').textContent=lives>0?'全对！':'加油！';$('#koR').classList.add('hide');$('#koBtns').style.display='none';
   $('#koMsg').innerHTML=(lives>0?'Все слова пройдены! ':'Жизни закончились. ')+'Вспомнено: '+koOk+' из '+W.length+' &nbsp;<button class="y" id="koAgain">Ещё раз</button>';$('#koAgain').onclick=koStart;return}
- const w=ko[koI];$('#koH').textContent=w.h;$('#koP').textContent=w.p;$('#koT').textContent=w.r;$('#koR').classList.add('hide')}
-$('#koShow').onclick=()=>{$('#koR').classList.remove('hide');say(ko[koI].h)};
-$('#koYes').onclick=()=>{learnW(ko[koI]);award('k'+ko[koI].i,1);koOk++;koI++;koShow()};
-$('#koNo').onclick=()=>{const w=ko[koI];weak.add(w.i);lives--;$('#koR').classList.remove('hide');say(w.h);koI++;paint();setTimeout(koShow,1600)};
+ const w=ko[koI];koLock=false;$('#koH').textContent=w.h;$('#koP').textContent=w.p;$('#koT').textContent=w.r;$('#koR').classList.add('hide');
+ const pool=shuf(W.filter(x=>x.r!==w.r)).filter((x,k,a)=>a.findIndex(y=>y.r===x.r)===k).slice(0,2);
+ $('#koOpt').innerHTML=shuf([w,...pool]).map(x=>`<button class="opt" data-ko="${x.r===w.r?1:0}">${x.r}</button>`).join('')}
+let koLock=false;
+function koFail(){const w=ko[koI];weak.add(w.i);lives--;$('#koR').classList.remove('hide');say(w.h);koI++;paint();setTimeout(koShow,1700)}
+$('#koOpt').addEventListener('click',e=>{const b=e.target.closest('[data-ko]');if(!b||koLock)return;koLock=true;
+ $$('#koOpt [data-ko="1"]').forEach(x=>x.classList.add('right'));
+ if(b.dataset.ko==='1'){const w=ko[koI];$('#koR').classList.remove('hide');say(w.h);learnW(w);award('k'+w.i,1);koOk++;koI++;setTimeout(koShow,1100)}
+ else{b.classList.add('wrong');koFail()}})
+$('#koNo').onclick=()=>{if(koLock)return;koLock=true;$$('#koOpt [data-ko="1"]').forEach(x=>x.classList.add('right'));koFail()};
 koStart();
 
 /* 4 dumplings */
@@ -474,7 +483,7 @@ ${g.blocks?`<div class="gblocks">${g.blocks.map(b=>`<div class="row">${b.map(([z
 ${g.names?`<p class="label">Нажми на фамилию в каждом имени.</p><div class="row names">${g.names.map(([n,f],k)=>`<div class="nm1">${[...n].map(c=>`<button class="zh ch" data-gi="${gi}" data-nm="${k}" data-c="${c}">${c}</button>`).join('')}</div>`).join('')}</div>`:''}
 <div class="gq">${g.q.map(([q,a,o],qi)=>`<div class="gqi" data-g="${gi}" data-q="${qi}"><b>${q}</b><div class="row">${o.map(x=>`<button class="${/[一-龥]/.test(x)?'zh ':''}opt" data-v="${x}">${x}</button>`).join('')}</div></div>`).join('')}</div></div>`).join('');
 $('#gr').addEventListener('click',e=>{const s=e.target.closest('[data-say]');if(s){say(s.dataset.say);return}
- const c=e.target.closest('[data-nm]');if(c){const [n,f]=GR[+c.dataset.gi].names[+c.dataset.nm];if(c.dataset.c===f){c.classList.add('right');award('n'+c.dataset.gi+'_'+c.dataset.nm,1)}else{c.classList.add('wrong');setTimeout(()=>c.classList.remove('wrong'),600)}return}
+ const c=e.target.closest('[data-nm]');if(c){const [n,f]=GR[+c.dataset.gi].names[+c.dataset.nm];const nk='n'+c.dataset.gi+'_'+c.dataset.nm;if(c.dataset.c===f){c.classList.add('right');if(!nFail.has(nk))award(nk,1)}else{nFail.add(nk);c.classList.add('wrong');setTimeout(()=>c.classList.remove('wrong'),600)}return}
  const b=e.target.closest('.opt');if(!b)return;const box=b.closest('.gqi');if(box.dataset.done)return;box.dataset.done=1;const [q,a]=GR[+box.dataset.g].q[+box.dataset.q];
  box.querySelectorAll('.opt').forEach(x=>{if(x.dataset.v===a)x.classList.add('right')});if(b.dataset.v===a){award('g'+box.dataset.g+'_'+box.dataset.q,1)}else b.classList.add('wrong');if(/[一-龥]/.test(a))say(a)});
 
