@@ -469,8 +469,8 @@ gPaint();gNext();
 
 /* 5 duel */
 const SD=L.duel;
-$('#sd').innerHTML=SD.map(([q,a],k)=>`<div class="card" data-sd="${k}"><div class="label">Ситуация ${k+1}</div><div class="q">${q}</div><div class="a zh hide">${a}</div><div class="row"><button data-open>Ответ</button><button class="t" data-did>Готово +1</button></div></div>`).join('');
-$('#sd').addEventListener('click',e=>{const c=e.target.closest('[data-sd]');if(!c)return;if(e.target.closest('[data-open]')){c.querySelector('.a').classList.remove('hide');say(SD[+c.dataset.sd][1].split(/[/—]/)[0])}if(e.target.closest('[data-did]')&&!c.classList.contains('did')){c.classList.add('did');award('d'+c.dataset.sd,1)}});
+$('#sd').innerHTML=SD.map(([q,a],k)=>`<div class="card" data-sd="${k}"><div class="label">Ситуация ${k+1}</div><div class="q">${q}</div><div class="a zh hide">${a}</div><div class="row"><button data-open>Ответ</button><button class="t" data-did>Сказал(а)</button></div></div>`).join('');
+$('#sd').addEventListener('click',e=>{const c=e.target.closest('[data-sd]');if(!c)return;if(e.target.closest('[data-open]')){c.querySelector('.a').classList.remove('hide');say(SD[+c.dataset.sd][1].split(/[/—]/)[0])}if(e.target.closest('[data-did]')&&!c.classList.contains('did')){c.classList.add('did')}});
 const FIN=L.fin;
 $('#fin').innerHTML=FIN.map(([w,z,o])=>`<li>${w} <span class="zh${o?'':' hide'}"${o?'':' data-f'}>${z}</span></li>`).join('');
 $('#finShow').onclick=()=>$$('[data-f]').forEach(x=>x.classList.remove('hide'));
