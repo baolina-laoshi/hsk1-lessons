@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Модальные глаголы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap">
+<style>
+/*
+VOICE: спокойная тетрадь ученика, учительская красная ручка, без суеты
+IDEA: китайская прописная тетрадь 田字格 с пометками преподавателя
+PICTURE: строка клеток 田字格 с модальными глаголами — карта темы, по клику открывает правило
+COLOUR and TYPE: бумага, чёрная тушь, красный #c8102e; Noto Serif SC для иероглифов, Golos Text для русского
+LAYOUT: заголовок и клетки сверху, под ними вкладки блоков, задания одной колонкой
+*/
+:root{color-scheme:light dark;--bg:light-dark(#fbfaf6,#14161b);--card:light-dark(#fff,#1c1f26);--ink:light-dark(#16181d,#ecebe6);--mute:light-dark(#6b6a66,#9c9b96);--red:light-dark(#c8102e,#ff6b6b);--redbg:light-dark(#fdecee,#3a1d21);--ok:light-dark(#1d6b3a,#6fd39a);--okbg:light-dark(#e6f4ea,#173226);--line:light-dark(#e6c9cc,#4a3135);--rule:light-dark(#e3e1da,#2d3038)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Golos Text",system-ui,sans-serif;overflow-x:clip}
+.zh,.cell b{font-family:"Noto Serif SC","Songti SC",serif}
+.band{padding:clamp(24px,4vw,56px) max(5vw,16px);max-width:1000px;margin:0 auto}
+h1{font-size:clamp(32px,6vw,48px);line-height:1.05;margin:0 0 8px;text-wrap:balance}
+h2{font-size:24px;line-height:1.15;margin:0 0 6px}
+.lead{color:var(--mute);margin:0 0 22px;max-width:62ch}
+.grid{display:flex;flex-wrap:wrap;gap:14px}
+.verb{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit}
+.cells{display:flex}
+.cell{width:clamp(58px,11vw,84px);aspect-ratio:1;border:2px solid var(--red);position:relative;display:grid;place-items:center;background:var(--card)}
+.cell+.cell{border-left:0}
+.cell::before,.cell::after{content:"";position:absolute;border:0 dashed var(--line)}
+.cell::before{left:50%;top:0;bottom:0;border-left-width:1px}
+.cell::after{top:50%;left:0;right:0;border-top-width:1px}
+.cell b{position:relative;z-index:1;font-size:clamp(34px,6.4vw,50px);font-weight:700;line-height:1}
+.verb small{font-size:13px;color:var(--mute);text-align:center;max-width:12em;line-height:1.3}
+.verb:hover .cell,.verb:focus-visible .cell{background:var(--redbg)}
+.verb:focus-visible{outline:2px solid var(--red);outline-offset:4px}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--rule)}
+nav .in{max-width:1000px;margin:0 auto;padding:8px max(5vw,16px);display:flex;gap:8px;overflow-x:auto;align-items:center}
+nav button{flex:none;min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font:500 15px "Golos Text",sans-serif;cursor:pointer}
+nav button[aria-current=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+nav .score{margin-left:auto;flex:none;font-weight:600;color:var(--red);padding-left:12px;white-space:nowrap}
+.task{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:16px 18px;margin:0 0 14px}
+.ctx{color:var(--mute);font-size:15px;margin:0 0 4px}
+.q{font-size:24px;margin:0 0 12px;line-height:1.5}
+.q .gap{display:inline-block;min-width:2.4em;border-bottom:2px solid var(--red);text-align:center;color:var(--red)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{min-height:44px;min-width:64px;padding:6px 14px;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font:500 16px "Golos Text",sans-serif;cursor:pointer;text-align:left}
+.opt.zh{font-size:20px;font-weight:500}
+.opt:focus-visible,.tile:focus-visible,.btn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.opt.right{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.opt.wrong{background:var(--redbg);border-color:var(--red);color:var(--red);text-decoration:line-through}
+.opt:disabled{cursor:default}
+.why{margin:12px 0 0;padding:10px 12px;border-left:3px solid var(--red);background:var(--redbg);font-size:15px;display:none}
+.why.ok{border-color:var(--ok);background:var(--okbg)}
+.why.show{display:block}
+.why b{display:block;margin-bottom:2px}
+.tray,.built{display:flex;flex-wrap:wrap;gap:8px;min-height:52px}
+.built{border-bottom:2px dashed var(--line);padding-bottom:8px;margin-bottom:10px}
+.tile{min-height:44px;padding:4px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font:500 22px "Noto Serif SC",serif;cursor:pointer}
+.btn{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);font:600 15px "Golos Text",sans-serif;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.theory{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:14px}
+.theory .task h3{margin:0 0 6px;font-size:28px;font-family:"Noto Serif SC",serif;color:var(--red)}
+.theory ul{margin:0;padding-left:18px}.theory li{margin:3px 0}
+.ex{font-family:"Noto Serif SC",serif;font-size:18px}
+.flash{animation:fl 1.2s}@keyframes fl{from{box-shadow:0 0 0 4px var(--red)}to{box-shadow:0 0 0 0 transparent}}
+@media(prefers-reduced-motion:reduce){.flash{animation:none}}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:1px solid var(--rule);padding:8px;text-align:left;vertical-align:top}
+th{font-weight:600}
+.blockhead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+.blockhead p{margin:0;color:var(--mute);flex-basis:100%}
+.end{color:var(--mute);font-size:14px;padding-bottom:40px}
+@media(max-width:600px){.q{font-size:21px}table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--rule)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:7em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:6.5em;margin-inline-start:-7em;color:var(--mute)}}
+</style>
+</head>
+<body>
+<header class="band">
+  <h1>Модальные глаголы</h1>
+  <p class="lead">Хотеть, мочь, уметь, быть должным. Нажми на клетку, чтобы открыть правило, или сразу переходи к заданиям. После каждого ответа появится объяснение.</p>
+  <div class="grid" id="verbs"></div>
+</header>
+<nav><div class="in" id="tabs"></div></nav>
+<main class="band" id="main"></main>
+<p class="band end">Счёт засчитывает только первую попытку. Кнопка «Заново» в каждом блоке перемешивает задания и сбрасывает ответы.</p>
+<script>
+{
+const V=[
+ ['想','хочется',  't-xiang'],['要','хочу и сделаю · надо','t-yao'],['愿意','согласен, готов','t-yuanyi'],
+ ['会','умею · так будет','t-hui'],['能','могу (силы, обстоятельства)','t-neng'],['可以','можно, разрешено','t-keyi'],
+ ['应该','следует','t-yinggai'],['得','надо (разг.)','t-dei'],['可能','возможно, может быть','t-keneng']];
+
+const T=[
+ ['t-xiang','想 xiǎng',['Желание, «хочется, хотелось бы». Мечта, а не план.','Можно усилить: 很想, 非常想.','Отрицание: 不想.'],['我很想去中国看看。']],
+ ['t-yao','要 yào',['Хочу и сделаю: намерение, часто с оттенком будущего.','Надо: фактическая необходимость (明天有课，我要去学校).','Отрицания разные: «не хочу» — 不想; «не надо» — 不用; 不要 + глагол — строгий запрет «не смей!».','С 很 не употребляется: не 很要去, а 很想去.'],['今天晚上我要给妈妈打电话。']],
+ ['t-yuanyi','愿意 yuànyì',['Согласие, готовность что-то сделать, иногда через «не хочется, но».','Отрицание: 不愿意 — не соглашается, не хочет ни в какую.'],['他不愿意跟我们一起去。']],
+ ['t-hui','会 huì',['1) Умею, научился: 我会游泳.','2) Вероятность, прогноз: говорящий ожидает, что так и будет. Часто с 的 в конце: 他会来的 — придёт, я уверен.','Отрицание: 不会 — не умею / не будет.'],['今天不会下雨。']],
+ ['t-neng','能 néng',['Может по силам, навыкам, физическим данным: 他一天能看一本书.','Может, потому что позволяют обстоятельства; вернувшаяся способность: 病好了，能游泳了.','不能 — нельзя из-за вреда или опасности: 这条河不能钓鱼 (вода отравлена).'],['我能翻译也能说。']],
+ ['t-keyi','可以 kěyǐ',['Разрешение, допустимость: 汉语可以这样说.','Готовность пойти навстречу: 你今天忙，我可以明天来.','Запрет: 不可以 или 不能; короткий ответ «нельзя» — 不行.','可以不 + глагол — «можно не»: 这个你可以不做.'],['老师说，你可以跟我们一起去。']],
+ ['t-both','能 и 可以 вместе',['Просьба вопросом «а не мог бы ты…?»: 你能/可以帮我吗？','Запрет по нормам общежития: 阅览室里不能/不可以吸烟.','Но умение — только 会, а не 可以.'],['你能不能再说一遍？']],
+ ['t-yinggai','应该 yīnggāi',['Этическая или логическая необходимость, «следует, надо бы».','不应该 (不该) о прошлом звучит как упрёк: 你不应该问他这个问题.'],['你们学习得不错，应该去中国。']],
+ ['t-dei','得 děi',['Значит то же, что 应该/要 «надо», но сугубо разговорное.','Читается děi, не de.','Отрицание: 不用 (не 不得).'],['太晚了，我得走了。']],
+ ['t-keneng','可能 kěnéng',['Оценка вероятности со стороны говорящего: «возможно, может быть, наверное».','Может стоять перед подлежащим: 可能他不来了.','Сочетается с 会: 明天可能会下雨.','Работает и как прилагательное: 不可能 «невозможно», 有可能 «вполне возможно».'],['他可能已经回家了。']],
+ ['t-order','Порядок слов',['Модальный глагол стоит перед основным глаголом.','也、都、还、不 — перед модальным: 我也想去, 我们都会说汉语.','再、常、предложные конструкции — между модальным и основным: 你可以从我家去图书馆.'],['他应该常做练习。']]
+];
+
+const CMP=[['Насколько уверен говорящий','Ожидает, что так будет. С 的 в конце — почти уверен','Не уверен, «может да, может нет»'],
+ ['Перед подлежащим','Нельзя','Можно: 可能他病了'],
+ ['О прошлом, с 已经','Нельзя: ✗ 他会已经走了','Можно: 他可能已经走了'],
+ ['Ответ одним словом','会 / 不会 (на вопрос с 会)','可能吧 · 有可能 · 不可能'],
+ ['Отрицание','不会来 — не придёт (прогноз)','可能不来 — возможно, не придёт; 不可能来 — исключено'],
+ ['Другие значения','умею','прилагательное: 不可能, 有可能']];
+
+const B=[
+{id:'mean',name:'1. Какое значение?',intro:'Не нужно выбирать глагол. Определи, что он выражает в этом предложении.',type:'mc',items:[
+ {q:'我妹妹会游泳。',o:['умение','разрешение','вероятность','желание'],a:['умение'],w:'会 здесь «умеет, научилась». Это первое значение 会.'},
+ {q:'今天不会下雨。',o:['умение','вероятность','запрет','необходимость'],a:['вероятность'],w:'Дождь не «умеет» — это прогноз. 会 во втором значении.'},
+ {q:'老师说，你们可以用词典。',o:['разрешение','умение','желание','вероятность'],a:['разрешение'],w:'Учитель разрешает: 可以 — разрешение.'},
+ {q:'你今天忙，我可以明天来。',o:['готовность пойти навстречу','умение','запрет','вероятность'],a:['готовность пойти навстречу'],w:'«Раз ты занят, я могу прийти завтра»: 可以 как готовность подстроиться.'},
+ {q:'他一天能看一本书。',o:['способность, «по силам»','разрешение','желание','этическая необходимость'],a:['способность, «по силам»'],w:'Читать книгу в день — вопрос возможностей человека, это 能.'},
+ {q:'明天有课，我要去学校。',o:['фактическая необходимость','мечта','вероятность','разрешение'],a:['фактическая необходимость'],w:'Урок есть — значит надо идти. 要 «надо».'},
+ {q:'这件事儿你应该告诉他。',o:['«следует, надо бы»','умение','разрешение','вероятность'],a:['«следует, надо бы»'],w:'Совет с этической стороной: 应该.'},
+ {q:'他不愿意跟我们一起去。',o:['нет согласия','не умеет','нельзя по правилам','не получится по прогнозу'],a:['нет согласия'],w:'不愿意 — не согласен, не хочет ни в какую.'},
+ {q:'他可能不知道这件事。',o:['предположение, «может быть»','уверенный прогноз','запрет','умение'],a:['предположение, «может быть»'],w:'可能 — говорящий допускает, но не уверен.'},
+ {q:'这条河不能钓鱼。',o:['нельзя из-за вреда','не умею','не хочу','нет согласия'],a:['нельзя из-за вреда'],w:'不能 — запрет из-за опасности или вреда (например, вода отравлена).'}]},
+{id:'pick',name:'2. Выбери глагол',intro:'Прочитай ситуацию над предложением: она подсказывает значение. Иногда правильных ответов два.',type:'mc',items:[
+ {c:'В детстве научился плавать.',q:'他___游泳。',o:['会','能','可以','想'],a:['会'],w:'Навык, которому научились, — 会.'},
+ {c:'Болел, теперь выздоровел.',q:'他病好了，今天___游泳了。',o:['会','能','想','应该'],a:['能'],w:'Плавать он умел и раньше. Вернулась физическая возможность — это 能.'},
+ {c:'Спрашиваешь у учителя разрешения войти.',q:'老师，我___进来吗？',o:['可以','能','会','想'],a:['可以','能'],w:'Разрешение — 可以. В просьбе-вопросе 能 тоже возможно.'},
+ {c:'Это просто мечта.',q:'我很___去北京看看。',o:['想','要','会','可以'],a:['想'],w:'Мечта — 想. С 很 говорят 很想, а 很要 не говорят.'},
+ {c:'Ты уверен, что он придёт.',q:'别着急，他___来的。',o:['会','可能','能','想'],a:['会'],w:'Прогноз с уверенностью: 会…的. 可能 сюда не подходит, оно звучит неуверенно.'},
+ {c:'Он не пришёл, ты предполагаешь причину.',q:'他今天没来上课，___病了。',o:['可能','会','能','要'],a:['可能'],w:'Догадка о том, что уже случилось, — 可能. 会 о прошлом не говорит.'},
+ {c:'Совет хорошо успевающим студентам.',q:'你们学习得不错，___去中国。',o:['应该','会','愿意','能'],a:['应该'],w:'«Вам бы стоило» — 应该.'},
+ {c:'Ни за что не согласен извиниться.',q:'他不___跟我说对不起。',o:['愿意','会','可以','应该'],a:['愿意'],w:'Нет согласия — 不愿意.'},
+ {c:'Можно ли так сказать по-китайски?',q:'汉语___这样说。',o:['可以','会','想','要'],a:['可以'],w:'Допустимость в языке — 可以.'},
+ {c:'Вежливо просишь друга.',q:'你___帮我一下吗？',o:['能','可以','会','想'],a:['能','可以'],w:'Просьба вопросом «а не мог бы ты…» — 能 или 可以.'},
+ {c:'Завтра урок в восемь, это факт.',q:'明天八点有课，我___早起。',o:['要','得','想','会'],a:['要','得'],w:'Фактическая необходимость — 要. В разговоре то же самое скажут с 得 (děi).'},
+ {c:'Он едет в Шанхай, на урок, понятно, не придёт.',q:'他明天去上海，不___来上课。',o:['会','想','愿意','应该'],a:['会'],w:'Вывод-прогноз: 不会 «не будет, не придёт».'},
+ {c:'За час он успевает перевести десять страниц.',q:'他一个小时___翻译十页。',o:['能','会','可以','想'],a:['能'],w:'Объём, который по силам за время, — 能.'},
+ {c:'Другу некогда, ты предлагаешь помочь.',q:'你没时间，我___帮你。',o:['可以','会','应该','得'],a:['可以'],w:'Готовность пойти навстречу — 可以.'},
+ {c:'Ты не уверен насчёт погоды.',q:'明天___会下雨。',o:['可能','能','想','应该'],a:['可能'],w:'可能会 — «может быть, будет». Частое сочетание.'},
+ {c:'Говоришь, что умеешь, но сейчас мешают обстоятельства.',q:'我会开车，可是今天不___开车。',o:['能','会','想','要'],a:['能'],w:'Умение есть (会), но сегодня нет возможности — 不能.'}]},
+{id:'neg',name:'3. Отрицания',intro:'Самое коварное место: у одного глагола бывает несколько отрицаний.',type:'mc',items:[
+ {c:'Тебе предлагают чай, ты не хочешь.',q:'A：你要喝茶吗？ B：谢谢，我不___喝。',o:['想','用','会','能'],a:['想'],w:'要 «хочу» отрицается через 不想. 不要喝 звучит как «не смей пить».'},
+ {c:'Текст лёгкий.',q:'这个课文不难，___翻译。',o:['不用','不要','不会','不想'],a:['不用'],w:'«Нет необходимости» — 不用. 不要翻译 значило бы «не смей переводить».'},
+ {c:'Строгий запрет на уроке.',q:'上课的时候___说俄语！',o:['不要','不用','不想','不会'],a:['不要'],w:'Запрет «не смей!» — 不要.'},
+ {c:'A: 明天要去学校吗？ (а завтра воскресенье)',q:'B：明天星期天，___去。',o:['不用','不要','不会','不能'],a:['不用'],w:'要 «надо» отрицается через 不用.'},
+ {c:'A: 我可以抽烟吗？',q:'B：___，这儿是阅览室。',o:['不行','不可以','不用','不会'],a:['不行','不可以'],w:'Отказ в разрешении: короткое 不行 или 不可以. 不用 значит «не нужно», это не про разрешение.'},
+ {c:'Здоровью вредно.',q:'他身体不好，___喝酒。',o:['不能','不用','不会','不想'],a:['不能'],w:'Нельзя из-за вреда — 不能.'},
+ {c:'Не умеет готовить.',q:'我妹妹___做饭。',o:['不会','不能','不可以','不用'],a:['不会'],w:'Нет навыка — 不会.'},
+ {c:'Ты уже рассказал ему, и зря.',q:'这件事儿你___告诉他。',o:['不应该','不用','不会','不想'],a:['不应该'],w:'Упрёк за сделанное — 不应该 (不该).'},
+ {c:'A: 我得去医院吗？',q:'B：你没病，___去。',o:['不用','不得','不要','不会'],a:['不用'],w:'得 děi отрицается через 不用. Сочетания 不得 в этом значении нет.'},
+ {c:'Упражнение необязательное.',q:'这个练习你___做。',o:['可以不','不可以','不会','不想'],a:['可以不'],w:'可以不 — «можно не делать». 不可以做 — «нельзя делать», смысл противоположный.'},
+ {c:'Он только вчера уехал в Шанхай.',q:'他今天___在这儿。',o:['不可能','可能不','不想','不用'],a:['不可能'],w:'Исключено — 不可能. 可能不 значило бы «возможно, его тут нет».'},
+ {c:'Небо ясное, прогноз хороший.',q:'今天___下雨。',o:['不会','不想','不能','不用'],a:['不会'],w:'Прогноз «не будет» — 不会.'}]},
+{id:'pairs',name:'4. Найди разницу',intro:'Одно и то же предложение с разными глаголами. Выбери, что оно значит.',type:'mc',items:[
+ {q:'他会去。',o:['Он (наверняка) пойдёт','Ему хочется пойти','Возможно, он пойдёт','Ему следует пойти'],a:['Он (наверняка) пойдёт'],w:'会 о будущем — прогноз говорящего.'},
+ {q:'他要去。',o:['Он собирается пойти','Он согласен пойти','Ему разрешили пойти','Возможно, он пойдёт'],a:['Он собирается пойти'],w:'要 — намерение, решение уже есть.'},
+ {q:'他想去。',o:['Ему хочется пойти','Он точно пойдёт','Он обязан пойти','Он умеет ходить'],a:['Ему хочется пойти'],w:'想 — желание, без гарантии, что пойдёт.'},
+ {q:'他愿意去。',o:['Он согласен пойти','Он мечтает пойти','Ему можно пойти','Он наверняка пойдёт'],a:['Он согласен пойти'],w:'愿意 — согласие, готовность.'},
+ {q:'他可能去。',o:['Может быть, он пойдёт','Он уверенно пойдёт','Ему следует пойти','Ему разрешили'],a:['Может быть, он пойдёт'],w:'可能 — неуверенное предположение.'},
+ {q:'他应该去。',o:['Ему следует пойти','Он может пойти','Ему хочется пойти','Он умеет идти'],a:['Ему следует пойти'],w:'应该 — «надо бы, правильно было бы».'},
+ {q:'他可以去。',o:['Ему можно пойти','Ему хочется','Он пойдёт наверняка','Он вряд ли пойдёт'],a:['Ему можно пойти'],w:'可以 — разрешение или отсутствие препятствий.'},
+ {q:'他能去。',o:['У него есть возможность пойти','Ему хочется пойти','Ему следует пойти','Он умеет ходить'],a:['У него есть возможность пойти'],w:'能 — позволяют силы или обстоятельства.'}]},
+{id:'huikn',name:'5. 会 или 可能',intro:'Оба глагола говорят о вероятности, но по-разному. Открой таблицу, если сомневаешься.',type:'mc',cmp:true,items:[
+ {q:'___他今天不来了。',o:['可能','会'],a:['可能'],w:'Перед подлежащим может стоять только 可能.'},
+ {q:'他___已经回家了。',o:['可能','会'],a:['可能'],w:'О том, что уже произошло, 会 не говорит. Нужно 可能.'},
+ {q:'别担心，他一定___来的。',o:['会','可能'],a:['会'],w:'一定…的 — уверенность, это 会. «Обязательно может быть» звучит противоречиво.'},
+ {q:'A：明天他来吗？ B：___吧，我不太清楚。',o:['可能','会'],a:['可能'],w:'Неуверенный ответ одним словом — 可能吧.'},
+ {q:'一天学会一千个汉字？这不___！',o:['可能','会'],a:['可能'],w:'«Это невозможно» — 不可能. Здесь 可能 работает как прилагательное.'},
+ {q:'他有___去北京工作。',o:['可能','会'],a:['可能'],w:'有可能 — «вполне возможно». С 会 так не говорят.'},
+ {q:'你这样说，她___不高兴的。',o:['会','可能'],a:['会'],w:'Говорящий уверен в последствии: 会…的.'},
+ {q:'明天可能___下雨。',o:['会','可能'],a:['会'],w:'Сочетание 可能会: «может быть, будет».'},
+ {c:'Ты уверен: он не придёт.',q:'他病了，今天不___来。',o:['会','可能'],a:['会'],w:'不会来 — прогноз «не придёт». 不可能来 значит «исключено», а 可能不来 — «возможно, не придёт».'}]},
+{id:'order',name:'6. Порядок слов',intro:'Нажимай на слова по порядку, чтобы собрать предложение. Нажми на слово в строке ответа, чтобы его убрать.',type:'order',items:[
+ {t:['我','也','想','去','中国'],a:['我也想去中国'],w:'也 стоит перед модальным глаголом.'},
+ {t:['我们','都','会','说','汉语'],a:['我们都会说汉语'],w:'都 — перед модальным глаголом.'},
+ {t:['你','可以','从','我家','去','图书馆'],a:['你可以从我家去图书馆'],w:'Предложная конструкция 从我家 — между модальным и основным глаголом.'},
+ {t:['他','应该','常','做','练习'],a:['他应该常做练习'],w:'常 — между 应该 и основным глаголом.'},
+ {t:['我','明天','不','想','去','学校'],a:['我明天不想去学校','明天我不想去学校'],w:'不 перед 想; время 明天 — после подлежащего или в самом начале.'},
+ {t:['你','能不能','再','说','一遍'],a:['你能不能再说一遍'],w:'再 — после модального глагола.'},
+ {t:['他','可能','会','晚','来'],a:['他可能会晚来','可能他会晚来','他可能会来晚','可能他会来晚'],w:'可能 перед 会; 可能 может стоять и перед подлежащим.'},
+ {t:['今天晚上','我','要','给','妈妈','打','电话'],a:['今天晚上我要给妈妈打电话','我今天晚上要给妈妈打电话'],w:'给妈妈 — между 要 и 打电话.'}]},
+{id:'err',name:'7. Найди ошибку',intro:'Выбери правильный вариант. Иногда ошибки нет.',type:'mc',items:[
+ {q:'我想也去。',o:['我也想去。','我想去也。','Ошибки нет'],a:['我也想去。'],w:'也 стоит перед модальным глаголом.'},
+ {q:'他病好了，今天会游泳了。',o:['他病好了，今天能游泳了。','他病好了，今天想游泳了。','Ошибки нет'],a:['他病好了，今天能游泳了。'],w:'Умение не пропадало, вернулась возможность — 能.'},
+ {q:'这个课文不难，不要翻译。',o:['这个课文不难，不用翻译。','这个课文不难，不会翻译。','Ошибки нет'],a:['这个课文不难，不用翻译。'],w:'«Не нужно» — 不用. 不要 — запрет.'},
+ {q:'A：你要去吗？ B：我不要去。',o:['我不想去。','我不会去。','Ошибки нет'],a:['我不想去。'],w:'«Не хочу» на вопрос с 要 — 不想.'},
+ {q:'我可以说汉语，可是说得不好。',o:['我会说汉语，可是说得不好。','我要说汉语，可是说得不好。','Ошибки нет'],a:['我会说汉语，可是说得不好。'],w:'Речь об умении — 会.'},
+ {q:'他会已经回家了。',o:['他可能已经回家了。','他已经会回家了。','Ошибки нет'],a:['他可能已经回家了。'],w:'С 已经 о прошлом — 可能.'},
+ {q:'我很要去中国。',o:['我很想去中国。','我要很去中国。','Ошибки нет'],a:['我很想去中国。'],w:'很 сочетается с 想, а с 要 нет.'},
+ {q:'明天你不得来。',o:['明天你不用来。','明天你得不来。','Ошибки нет'],a:['明天你不用来。'],w:'Отрицание 得 děi — 不用.'},
+ {q:'你可以从我家去图书馆。',o:['你从我家可以去图书馆。','你可以去图书馆从我家。','Ошибки нет'],a:['Ошибки нет'],w:'Всё верно: предложная конструкция между модальным и основным глаголом.'},
+ {q:'今天可能会下雨。',o:['今天会可能下雨。','今天可能下雨会。','Ошибки нет'],a:['Ошибки нет'],w:'可能会 — правильный порядок.'}]},
+{id:'say',name:'8. Скажи сам',intro:'Устная часть. Сначала скажи вслух, потом открой вариант. Твой ответ может отличаться и всё равно быть верным.',type:'say',items:[
+ ['Попроси у учителя разрешения выйти.','老师，我可以出去一下吗？'],
+ ['Скажи, что умеешь водить машину, но завтра не сможешь отвезти друга.','我会开车，可是明天我不能送你。'],
+ ['Вежливо попроси друга помочь с переводом.','你能帮我翻译一下吗？'],
+ ['Запрети младшему брату трогать твой телефон.','不要动我的手机！'],
+ ['Скажи, что очень хочешь поехать в Китай, но пока нет денег.','我很想去中国，可是现在没有钱。'],
+ ['Скажи другу, что завтра ему приходить не нужно.','明天你不用来。'],
+ ['Предположи, что завтра, может быть, будет дождь.','明天可能会下雨。'],
+ ['Посоветуй другу больше говорить по-китайски.','你应该多说汉语。'],
+ ['Согласись спеть вместе с одногруппником.','好，我愿意跟他一起唱歌儿。'],
+ ['Скажи, что по-китайски так сказать можно.','汉语可以这样说。'],
+ ['Скажи, что он точно не опоздает, ты уверен.','他不会来晚的。'],
+ ['Скажи, что это невозможно — выучить сто иероглифов за день.','一天学会一百个汉字，这不可能。']]},
+{id:'theory',name:'Правила',type:'theory'}
+];
+
+const S={};let cur='mean';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const isZh=s=>/[一-鿿]/.test(s);
+const gap=q=>esc(q).replace('___','<span class="gap">？</span>');
+
+document.getElementById('verbs').innerHTML=V.map(([z,l,t])=>`<button class="verb" data-go="${t}"><span class="cells">${[...z].map(ch=>`<span class="cell"><b>${ch}</b></span>`).join('')}</span><small>${esc(l)}</small></button>`).join('');
+
+function init(id){const b=B.find(x=>x.id===id);if(!b.items)return;S[id]={order:shuf(b.items.map((_,i)=>i)),done:{},right:0}}
+B.forEach(b=>init(b.id));
+
+function score(){let r=0,n=0;B.forEach(b=>{if(b.type==='mc'||b.type==='order'){n+=b.items.length;r+=S[b.id].right}});document.getElementById('sc').textContent=`${r} / ${n}`}
+
+function tabs(){document.getElementById('tabs').innerHTML=B.map(b=>`<button data-tab="${b.id}" aria-current="${b.id===cur}">${esc(b.name)}</button>`).join('')+'<span class="score" id="sc"></span>';score()}
+
+function cmpTable(){return `<details class="task"><summary style="cursor:pointer;font-weight:600">Таблица: 会 и 可能</summary><table class="stack" style="margin-top:10px"><thead><tr><th></th><th>会</th><th>可能</th></tr></thead><tbody>${CMP.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></details>`}
+
+function render(){
+ const b=B.find(x=>x.id===cur),m=document.getElementById('main');
+ if(b.type==='theory'){m.innerHTML=`<div class="blockhead"><h2>Правила</h2><p>Конспект по теме. 会 и 可能 сравниваются в таблице внизу.</p></div><div class="theory">${T.map(([id,h,li,ex])=>`<div class="task" id="${id}"><h3>${esc(h)}</h3><ul>${li.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="ex">${ex.map(esc).join('<br>')}</p></div>`).join('')}</div>${cmpTable().replace('<details class="task">','<details class="task" open>')}`;return}
+ const st=S[cur];let h=`<div class="blockhead"><h2>${esc(b.name)}</h2><button class="btn ghost" data-reset="${cur}">Заново</button><p>${esc(b.intro)}</p></div>`;
+ if(b.cmp)h+=cmpTable();
+ h+=st.order.map(i=>{const it=b.items[i],d=st.done[i];
+  if(b.type==='say')return `<div class="task"><p class="q" style="font-size:18px">${esc(it[0])}</p><button class="btn ghost" data-say="${i}">Показать вариант</button><p class="why ok ${d?'show':''}"><span class="zh" style="font-size:22px">${esc(it[1])}</span></p></div>`;
+  if(b.type==='order'){const built=d?d.built:(st['b'+i]||[]);const pool=shuf(it.t.map((_,k)=>k));const left=(st['p'+i]||=pool).filter(k=>!built.includes(k));
+   return `<div class="task" data-i="${i}"><div class="built">${built.map(k=>`<button class="tile" data-un="${k}" ${d?'disabled':''}>${esc(it.t[k])}</button>`).join('')}</div><div class="tray">${left.map(k=>`<button class="tile" data-put="${k}" ${d?'disabled':''}>${esc(it.t[k])}</button>`).join('')}</div>${d?'':`<div class="row"><button class="btn" data-check="${i}">Проверить</button></div>`}<p class="why ${d?(d.ok?'ok ':'')+'show':''}">${d?`<b>${d.ok?'Верно':'Правильно так: '+esc(it.a[0])+'。'}</b>${esc(it.w)}`:''}</p></div>`}
+  const opts=(st['o'+i]||=shuf(it.o.filter(o=>o!=='Ошибки нет')).concat(it.o.includes('Ошибки нет')?['Ошибки нет']:[]));
+  return `<div class="task" data-i="${i}">${it.c?`<p class="ctx">${esc(it.c)}</p>`:''}<p class="q zh">${gap(it.q)}</p><div class="opts">${opts.map(o=>{let c='';if(d){if(it.a.includes(o))c='right';else if(o===d.pick)c='wrong'}return `<button class="opt${isZh(o)?' zh':''} ${c}" data-pick="${esc(o)}" ${d?'disabled':''}>${esc(o)}</button>`}).join('')}</div><p class="why ${d?(d.ok?'ok ':'')+'show':''}">${d?`<b>${d.ok?'Верно':'Не совсем'}</b>${esc(it.w)}`:''}</p></div>`
+ }).join('');
+ m.innerHTML=h;
+}
+
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.tab){cur=t.dataset.tab;tabs();render();try{localStorage.setItem('modal-tab',cur)}catch(_){}document.getElementById('main').scrollIntoView({block:'start'});return}
+ if(t.dataset.go){cur='theory';tabs();render();const el=document.getElementById(t.dataset.go);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('flash')}return}
+ if(t.dataset.reset){init(t.dataset.reset);score();render();return}
+ const st=S[cur],b=B.find(x=>x.id===cur),box=t.closest('[data-i]'),i=box?+box.dataset.i:+t.dataset.say;
+ if(t.dataset.say!==undefined){st.done[i]=!st.done[i];render();return}
+ if(t.dataset.pick!==undefined&&!st.done[i]){const it=b.items[i],ok=it.a.includes(t.dataset.pick);st.done[i]={pick:t.dataset.pick,ok};if(ok)st.right++;score();render();return}
+ if(t.dataset.put!==undefined){(st['b'+i]||=[]).push(+t.dataset.put);render();return}
+ if(t.dataset.un!==undefined){st['b'+i]=(st['b'+i]||[]).filter(k=>k!==+t.dataset.un);render();return}
+ if(t.dataset.check!==undefined){const it=b.items[i],built=st['b'+i]||[];if(built.length<it.t.length)return;const s=built.map(k=>it.t[k]).join('');const ok=it.a.includes(s);st.done[i]={built,ok};if(ok)st.right++;score();render()}
+});
+
+try{const s=localStorage.getItem('modal-tab');if(s&&B.some(b=>b.id===s))cur=s}catch(_){}
+tabs();render();
+}
+</script>
+</body>
+</html>
