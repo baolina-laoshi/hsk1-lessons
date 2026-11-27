@@ -54,29 +54,45 @@ def replacements(n, L):
     out.append(("${it.proper?'имя собственное':'новое слово'}", "${it.tag||(it.proper?'имя собственное':'новое слово')}"))
     return out
 
-def phrases(L):
+GLOBAL = {}   # norm(phrase) -> (file, phrase)
+
+def phrases(L, words):
     phr = []
+    alias = {}
     def add(t):
+        orig = t
         t = t.split('…')[0].split('（')[0]
+        alias[re.sub(r'AI|（.*?）|[，。！？、\s]', '', orig)] = norm(t)
+        if t in ('只', '呢', '吗'):
+            return
         if re.search(r'[一-龥]', t) and norm(t) not in [norm(x) for x in phr]:
             phr.append(t)
-    for w in L['words']: add(w[0]); add(w[4])
+    for w in words: add(w[0]); add(w[4])
     for T in L['texts']:
         for p in T.get('proper', []): add(p['h']); add(p['ex'])
         for d in T['dlg']: add(d[1])
     for x in L['sent']: add(''.join(x[0]) + x[1])
-    for q, o, c in L['react']: add(q); [add(y) for y in o]
+    for q, o, c in L['react']: add(q); add(o[c])
     for d in L['duel']: add(d[1])
     for f in L['fin']: add(f[1])
     for g in L['gram']:
         for z, r in g.get('ex', []):
             for part in z.split(' → '): add(part)
-        for q in g['q']: add(q[1]); [add(o) for o in q[2]]
+        for q in g['q']: add(q[1])
     for w in L['tw']: add(w['zh'])
     for t in L['test']:
         if t.get('a'): add(t['a'])
     for c in L['cast']: add(c[1])
-    return phr
+    out = {}
+    for t in phr:
+        k = norm(t)
+        if k not in GLOBAL:
+            GLOBAL[k] = (f'audio/kl_{len(GLOBAL):03d}.mp3', t)
+        out[k] = GLOBAL[k][0]
+    for a, k in alias.items():
+        if k in out and a not in out:
+            out[a] = out[k]
+    return out
 
 def build(n, tpl):
     L = dict(LESSONS[n])
@@ -106,8 +122,8 @@ def build(n, tpl):
     chars = sorted({c for w in words if w[3] == n for c in w[0]} |
                    {c for T in texts for p in T.get('proper', []) for c in p['h']})
     s = swap_obj(s, 'const HW=', {c: json.load(open(f'{HWD}/{c}.json', encoding='utf-8')) for c in chars})
-    phr = phrases(L)
-    s = swap_obj(s, 'const AUD=', {norm(t): f'audio/k{n:02d}_{i:02d}.mp3' for i, t in enumerate(phr)})
+    phr = phrases(L, words)
+    s = swap_obj(s, 'const AUD=', phr)
     add_js = 'Object.assign(CH,{' + ','.join(f"{k}:{{...CH.{b},n:'{z}',ru:'{r}'}}" for k, (b, z, r) in HEROES.items()) + '});'
     add_js += 'Object.assign(PPL,{' + ','.join(f"'{z}':'{k}'" for k, (b, z, r) in HEROES.items()) + '});'
     i = s.index('const PPL=')
@@ -136,8 +152,8 @@ if __name__ == '__main__':
     allp = []
     for n in sorted(LESSONS):
         phr = build(n, tpl)
-        allp += [(f'k{n:02d}_{i:02d}.mp3', t) for i, t in enumerate(phr)]
         print(n, 'ok, phrases', len(phr))
+    allp = [(f.split('/')[-1], t) for f, t in GLOBAL.values()]
     index_page()
     with open(f'{OUT}/_src/audio_list.tsv', 'w', encoding='utf-8') as f:
         f.writelines(f'{a}\t{b}\n' for a, b in allp)
